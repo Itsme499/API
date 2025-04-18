@@ -89,7 +89,10 @@ function SharkyAPI.highlightTarget(target)
     -- Ha nincs target, akkor a saját karaktert választjuk
     target = target or player.Character
 
-    if not target then return end
+    if not target then
+        warn("Target not found!")
+        return
+    end
 
     -- Ha már van highlight, töröljük
     local existing = target:FindFirstChild("SharkyHighlight")
