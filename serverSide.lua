@@ -14,6 +14,11 @@ local flySpeed = 50
 local espEnabled = false
 local highlights = {}
 
+
+local speedBoostEnabled = false
+local originalWalkSpeed = 16
+local boostedSpeed = 50
+
 -- Csatlakozáskor üzenet
 print("✅ API Made by Sharky M3nu")
 
@@ -120,6 +125,25 @@ function SharkyAPI.toggleHighlight()
             end
         end
         highlights = {}
+    end
+end
+
+function SharkyAPI.toggleSpeed()
+    local character = player.Character
+    if not character then return end
+
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return end
+
+    speedBoostEnabled = not speedBoostEnabled
+
+    if speedBoostEnabled then
+        originalWalkSpeed = humanoid.WalkSpeed
+        humanoid.WalkSpeed = boostedSpeed
+        print("⚡ Speed Boost ON")
+    else
+        humanoid.WalkSpeed = originalWalkSpeed
+        print("🐌 Speed Boost OFF")
     end
 end
 
