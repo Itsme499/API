@@ -200,10 +200,4 @@ function SharkyAPI.disconnect()
     print("❌ SharkyAPI has been disconnected.")
 end
 
--- API lekapcsolása (fiktív, de mutatom a logikát)
-function SharkyAPI.disconnect()
-    SharkyAPI.stopFly()
-    print("❌ SharkyAPI has been disconnected.")
-end
-
 return SharkyAPI
