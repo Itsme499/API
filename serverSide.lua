@@ -129,18 +129,19 @@ end
 
 -- Sebesség növelés (speed boost)
 function SharkyAPI.toggleSpeed()
-    speedBoostEnabled = not speedBoostEnabled
-
     local character = player.Character
     if character then
         local humanoid = character:FindFirstChild("Humanoid")
         if humanoid then
+            -- Ha a speed boost engedélyezve van, kapcsoljuk ki, egyébként kapcsoljuk be
             if speedBoostEnabled then
-                humanoid.WalkSpeed = boostedSpeed  -- Sebesség növelése
-                print("Speed boost enabled!")
-            else
-                humanoid.WalkSpeed = defaultSpeed  -- Visszaállítás alapértelmezett sebességre
+                humanoid.WalkSpeed = defaultSpeed  -- Visszaállítjuk az alapértelmezett sebességet
+                speedBoostEnabled = false
                 print("Speed boost disabled.")
+            else
+                humanoid.WalkSpeed = boostedSpeed  -- Beállítjuk a megnövelt sebességet
+                speedBoostEnabled = true
+                print("Speed boost enabled!")
             end
         end
     end
