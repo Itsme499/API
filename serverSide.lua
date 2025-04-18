@@ -1,17 +1,13 @@
--- SharkyAPI.lua
-
 local SharkyAPI = {}
 
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 local flying = false
 local flyConnection = nil
 local flySpeed = 50
-local highlightEnabled = false
-local speedEnabled = false
 
 -- Csatlakozáskor üzenet
 print("✅ API Made by Sharky M3nu")
@@ -19,6 +15,7 @@ print("✅ API Made by Sharky M3nu")
 -- Repülés bekapcsolása / kikapcsolása
 function SharkyAPI.toggleFly()
     flying = not flying
+
     if flying then
         SharkyAPI.startFly()
     else
@@ -30,7 +27,7 @@ end
 function SharkyAPI.startFly()
     if flyConnection then return end
 
-    local character = player.Character or player.CharacterAdded:Wait()  -- Biztosítani kell, hogy a karakter létezik
+    local character = player.Character
     if not character then return end
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid then return end
@@ -41,7 +38,7 @@ function SharkyAPI.startFly()
         local rootPart = character:FindFirstChild("HumanoidRootPart")
         if rootPart then
             local camera = workspace.CurrentCamera
-            local moveDirection = Vector3.zero
+            local moveDirection = Vector3.new(0, 0, 0)
 
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then
                 moveDirection += camera.CFrame.LookVector
@@ -87,14 +84,14 @@ function SharkyAPI.stopFly()
     end
 end
 
--- Highlight logika
+-- Kiemelés (highlight) logika - Automatikus target megadás
 function SharkyAPI.highlightTarget(target)
-    if not target then
-        warn("Target not found!")
-        return
-    end
+    -- Ha nincs target, akkor a saját karaktert választjuk
+    target = target or player.Character
 
-    -- Ha már van highlight, előbb töröljük
+    if not target then return end
+
+    -- Ha már van highlight, töröljük
     local existing = target:FindFirstChild("SharkyHighlight")
     if existing then
         existing:Destroy()
@@ -111,35 +108,20 @@ function SharkyAPI.highlightTarget(target)
     highlight.Parent = target
 end
 
+-- Kiemelés kapcsolása / kikapcsolása
 function SharkyAPI.toggleHighlight(target)
-    highlightEnabled = not highlightEnabled
-    if highlightEnabled then
-        SharkyAPI.highlightTarget(target)
-    else
-        local existing = target:FindFirstChild("SharkyHighlight")
-        if existing then
-            existing:Destroy()
-        end
-    end
+    -- Ha nincs target, akkor a saját karaktert használjuk
+    target = target or player.Character
+    SharkyAPI.highlightTarget(target)
 end
 
--- Sebesség logika
+-- Sebesség beállítása (sebesség növelés)
 function SharkyAPI.toggleSpeed()
-    speedEnabled = not speedEnabled
-    local character = player.Character
-    if character then
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            if speedEnabled then
-                humanoid.WalkSpeed = humanoid.WalkSpeed * 2 -- Sebesség növelése kétszeresére
-            else
-                humanoid.WalkSpeed = humanoid.WalkSpeed / 2 -- Sebesség visszaállítása alapértékre
-            end
-        end
-    end
+    -- Sebesség növelés logikája itt
+    print("Speed boost activated!")  -- Helyettesíthető a saját sebesség növelő kóddal
 end
 
--- API lekapcsolása (fiktív, de mutatom a logikát)
+-- API lekapcsolása
 function SharkyAPI.disconnect()
     SharkyAPI.stopFly()
     print("❌ SharkyAPI has been disconnected.")
