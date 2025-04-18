@@ -1,21 +1,25 @@
+-- SharkyAPI.lua
+
 local SharkyAPI = {}
 
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local flying = false
 local flyConnection = nil
 local flySpeed = 50
 
+local espEnabled = false
+local highlights = {}
+
 -- Csatlakozáskor üzenet
 print("✅ API Made by Sharky M3nu")
 
--- Repülés bekapcsolása / kikapcsolása
+-- Repülés toggle
 function SharkyAPI.toggleFly()
     flying = not flying
-
     if flying then
         SharkyAPI.startFly()
     else
@@ -23,7 +27,6 @@ function SharkyAPI.toggleFly()
     end
 end
 
--- Repülés elindítása
 function SharkyAPI.startFly()
     if flyConnection then return end
 
@@ -38,7 +41,7 @@ function SharkyAPI.startFly()
         local rootPart = character:FindFirstChild("HumanoidRootPart")
         if rootPart then
             local camera = workspace.CurrentCamera
-            local moveDirection = Vector3.new(0, 0, 0)
+            local moveDirection = Vector3.zero
 
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then
                 moveDirection += camera.CFrame.LookVector
@@ -59,16 +62,11 @@ function SharkyAPI.startFly()
                 moveDirection += Vector3.new(0, -1, 0)
             end
 
-            if moveDirection.Magnitude > 0 then
-                rootPart.Velocity = moveDirection.Unit * flySpeed
-            else
-                rootPart.Velocity = Vector3.zero
-            end
+            rootPart.Velocity = moveDirection.Magnitude > 0 and moveDirection.Unit * flySpeed or Vector3.zero
         end
     end)
 end
 
--- Repülés leállítása
 function SharkyAPI.stopFly()
     if flyConnection then
         flyConnection:Disconnect()
@@ -84,49 +82,51 @@ function SharkyAPI.stopFly()
     end
 end
 
--- Kiemelés (highlight) logika - Automatikus target megadás
-function SharkyAPI.highlightTarget(target)
-    -- Ha nincs target, akkor a saját karaktert választjuk
-    target = target or player.Character
+-- Highlight egy karakterre
+function SharkyAPI.highlightTarget(character)
+    if not character then return end
 
-    if not target then
-        warn("Target not found!")
-        return
-    end
-
-    -- Ha már van highlight, töröljük
-    local existing = target:FindFirstChild("SharkyHighlight")
+    local existing = character:FindFirstChild("SharkyHighlight")
     if existing then
         existing:Destroy()
     end
 
-    -- Highlight objektum létrehozása
     local highlight = Instance.new("Highlight")
     highlight.Name = "SharkyHighlight"
     highlight.FillColor = Color3.fromRGB(0, 255, 127)
     highlight.OutlineColor = Color3.fromRGB(0, 255, 255)
     highlight.FillTransparency = 0.5
     highlight.OutlineTransparency = 0
-    highlight.Adornee = target
-    highlight.Parent = target
+    highlight.Adornee = character
+    highlight.Parent = character
+
+    highlights[#highlights + 1] = highlight
 end
 
--- Kiemelés kapcsolása / kikapcsolása
-function SharkyAPI.toggleHighlight(target)
-    -- Ha nincs target, akkor a saját karaktert használjuk
-    target = target or player.Character
-    SharkyAPI.highlightTarget(target)
+-- ESP toggle minden játékosra
+function SharkyAPI.toggleHighlight()
+    espEnabled = not espEnabled
+
+    if espEnabled then
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= player and plr.Character then
+                SharkyAPI.highlightTarget(plr.Character)
+            end
+        end
+    else
+        for _, h in ipairs(highlights) do
+            if h and h.Parent then
+                h:Destroy()
+            end
+        end
+        highlights = {}
+    end
 end
 
--- Sebesség beállítása (sebesség növelés)
-function SharkyAPI.toggleSpeed()
-    -- Sebesség növelés logikája itt
-    print("Speed boost activated!")  -- Helyettesíthető a saját sebesség növelő kóddal
-end
-
--- API lekapcsolása
+-- API kikapcsolása
 function SharkyAPI.disconnect()
     SharkyAPI.stopFly()
+    SharkyAPI.toggleHighlight() -- ha ESP aktív, leállítja
     print("❌ SharkyAPI has been disconnected.")
 end
 
